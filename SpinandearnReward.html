@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin & Earn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        header h1 {
+            color: #4a148c;
+            font-size: 24px;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .tab.active {
+            color: #4a148c;
+            border-bottom: 2px solid #4a148c;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Spin Tab Styles */
+        .spin-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff5252, #ff4081, #e040fb, #7c4dff, 
+                #536dfe, #448aff, #40c4ff, #18ffff, 
+                #64ffda, #69f0ae, #b2ff59, #eeff41, 
+                #ffff00, #ffd740, #ffab40, #ff6e40
+            );
+            position: relative;
+            overflow: hidden;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            transform: rotate(0deg);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .wheel-item {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ff5722;
+            z-index: 10;
+        }
+        
+        .spin-btn {
+            background-color: #4a148c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .spin-btn:hover {
+            background-color: #6a1b9a;
+            transform: translateY(-2px);
+        }
+        
+        .spin-btn:disabled {
+            background-color: #b39ddb;
+            cursor: not-allowed;
+        }
+        
+        .spins-left {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .points-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4a148c;
+            margin-top: 10px;
+        }
+        
+        /* Profile Tab Styles */
+        .profile-container {
+            padding: 20px;
+        }
+        
+        .profile-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-info p {
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .save-btn {
+            background-color: #4a148c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* Withdrawal Tab Styles */
+        .withdrawal-container {
+            padding: 20px;
+        }
+        
+        .withdrawal-form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .withdrawal-history {
+            margin-top: 20px;
+        }
+        
+        .withdrawal-history h3 {
+            margin-bottom: 10px;
+        }
+        
+        .history-item {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .submit-btn {
+            background-color: #4a148c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .login-container, .signup-container {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .auth-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .auth-btn {
+            background-color: #4a148c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .switch-auth {
+            margin-top: 15px;
+            color: #666;
+        }
+        
+        .switch-auth span {
+            color: #4a148c;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="auth-section">
+            <div class="login-container active">
+                <h2>Login</h2>
+                <div class="auth-form">
+                    <input type="text" id="login-username" placeholder="Username">
+                    <input type="password" id="login-password" placeholder="Password">
+                    <button class="auth-btn" id="login-btn">Login</button>
+                    <div class="switch-auth">Don't have an account? <span id="show-signup">Sign Up</span></div>
+                </div>
+            </div>
+            
+            <div class="signup-container">
+                <h2>Sign Up</h2>
+                <div class="auth-form">
+                    <input type="text" id="signup-username" placeholder="Username">
+                    <input type="password" id="signup-password" placeholder="Password">
+                    <input type="password" id="signup-confirm-password" placeholder="Confirm Password">
+                    <button class="auth-btn" id="signup-btn">Sign Up</button>
+                    <div class="switch-auth">Already have an account? <span id="show-login">Login</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="app-section" style="display: none;">
+            <header>
+                <h1>Spin & Earn</h1>
+                <div class="points-display">Points: <span id="user-points">0</span></div>
+            </header>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="spin">Spin</div>
+                <div class="tab" data-tab="profile">Profile</div>
+                <div class="tab" data-tab="withdrawal">Withdrawal</div>
+            </div>
+            
+            <div class="tab-content active" id="spin-tab">
+                <div class="spin-container">
+                    <div class="wheel-container">
+                        <div class="pointer"></div>
+                        <div class="wheel" id="wheel"></div>
+                    </div>
+                    <button class="spin-btn" id="spin-btn">SPIN</button>
+                    <div class="spins-left">Spins left today: <span id="spins-remaining">10</span></div>
+                    <div id="spin-result" style="margin-top: 15px; font-weight: bold;"></div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="profile-tab">
+                <div class="profile-container">
+                    <div class="profile-info">
+                        <h3>Account Information</h3>
+                        <p>Username: <span id="profile-username"></span></p>
+                        <p>Total Points: <span id="profile-points"></span></p>
+                        <p>Total Withdrawals: ₹<span id="total-withdrawals">0</span></p>
+                    </div>
+                    
+                    <h3>Update UPI ID</h3>
+                    <div class="form-group">
+                        <label for="upi-id">UPI ID</label>
+                        <input type="text" id="upi-id" placeholder="yourname@upi">
+                    </div>
+                    <button class="save-btn" id="save-upi">Save</button>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="withdrawal-tab">
+                <div class="withdrawal-container">
+                    <div class="withdrawal-form">
+                        <h3>Request Withdrawal</h3>
+                        <p>1000 Points = ₹100</p>
+                        <p>Minimum withdrawal: ₹100 (1000 points)</p>
+                        <div class="form-group">
+                            <label for="withdrawal-points">Points to withdraw (multiple of 1000)</label>
+                            <input type="number" id="withdrawal-points" min="1000" step="1000" value="1000">
+                        </div>
+                        <div class="form-group">
+                            <label for="withdrawal-upi">UPI ID</label>
+                            <input type="text" id="withdrawal-upi" readonly>
+                        </div>
+                        <button class="submit-btn" id="submit-withdrawal">Submit Request</button>
+                    </div>
+                    
+                    <div class="withdrawal-history">
+                        <h3>Withdrawal History</h3>
+                        <div id="history-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <script>
+        // App Data
+        const prizes = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 200];
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('spinEarnUsers')) || [];
+        let spinHistory = JSON.parse(localStorage.getItem('spinHistory')) || {};
+        let withdrawals = JSON.parse(localStorage.getItem('withdrawals')) || {};
+        
+        // DOM Elements
+        const authSection = document.getElementById('auth-section');
+        const appSection = document.getElementById('app-section');
+        const loginContainer = document.querySelector('.login-container');
+        const signupContainer = document.querySelector('.signup-container');
+        const showSignup = document.getElementById('show-signup');
+        const showLogin = document.getElementById('show-login');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spin-btn');
+        const spinsRemainingEl = document.getElementById('spins-remaining');
+        const userPointsEl = document.getElementById('user-points');
+        const profileUsernameEl = document.getElementById('profile-username');
+        const profilePointsEl = document.getElementById('profile-points');
+        const totalWithdrawalsEl = document.getElementById('total-withdrawals');
+        const upiIdInput = document.getElementById('upi-id');
+        const saveUpiBtn = document.getElementById('save-upi');
+        const withdrawalPointsInput = document.getElementById('withdrawal-points');
+        const withdrawalUpiInput = document.getElementById('withdrawal-upi');
+        const submitWithdrawalBtn = document.getElementById('submit-withdrawal');
+        const historyList = document.getElementById('history-list');
+        const notification = document.getElementById('notification');
+        const spinResult = document.getElementById('spin-result');
+        
+        // Initialize wheel
+        function initWheel() {
+            wheel.innerHTML = '';
+            const sectorAngle = 360 / prizes.length;
+            
+            prizes.forEach((prize, index) => {
+                const angle = sectorAngle * index;
+                const item = document.createElement('div');
+                item.className = 'wheel-item';
+                item.textContent = prize;
+                item.style.transform = `rotate(${angle}deg)`;
+                item.style.setProperty('--angle', `${sectorAngle}deg`);
+                wheel.appendChild(item);
+            });
+        }
+        
+        // Show notification
+        function showNotification(message, isSuccess = true) {
+            notification.textContent = message;
+            notification.style.backgroundColor = isSuccess ? '#4caf50' : '#f44336';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Switch between tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                
+                if (tab.dataset.tab === 'withdrawal') {
+                    loadWithdrawalData();
+                }
+            });
+        });
+        
+        // Switch between login/signup
+        showSignup.addEventListener('click', () => {
+            loginContainer.classList.remove('active');
+            signupContainer.classList.add('active');
+        });
+        
+        showLogin.addEventListener('click', () => {
+            signupContainer.classList.remove('active');
+            loginContainer.classList.add('active');
+        });
+        
+        // Login function
+        loginBtn.addEventListener('click', () => {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            
+            if (!username || !password) {
+                showNotification('Please enter both username and password', false);
+                return;
+            }
+            
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                authSection.style.display = 'none';
+                appSection.style.display = 'block';
+                updateUserData();
+                loadWithdrawalData();
+                showNotification('Login successful!');
+            } else {
+                showNotification('Invalid username or password', false);
+            }
+        });
+        
+        // Signup function
+        signupBtn.addEventListener('click', () => {
+            const username = document.getElementById('signup-username').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+            
+            if (!username || !password || !confirmPassword) {
+                showNotification('Please fill all fields', false);
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match', false);
+                return;
+            }
+            
+            if (users.some(u => u.username === username)) {
+                showNotification('Username already exists', false);
+                return;
+            }
+            
+            const newUser = {
+                username,
+                password,
+                points: 0,
+                upiId: '',
+                totalWithdrawn: 0,
+                lastSpinDate: null,
+                spinsUsedToday: 0
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('spinEarnUsers', JSON.stringify(users));
+            
+            showNotification('Account created successfully!');
+            document.getElementById('login-username').value = username;
+            document.getElementById('login-password').value = password;
+            signupContainer.classList.remove('active');
+            loginContainer.classList.add('active');
+        });
+        
+        // Spin functionality
+        spinBtn.addEventListener('click', () => {
+            if (currentUser.spinsUsedToday >= 10) {
+                showNotification('You have used all your spins for today', false);
+                return;
+            }
+            
+            spinBtn.disabled = true;
+            const spinDegrees = 360 * 5 + Math.floor(Math.random() * 360);
+            wheel.style.transform = `rotate(${spinDegrees}deg)`;
+            
+            setTimeout(() => {
+                const winningIndex = Math.floor(((spinDegrees % 360) / 360) * prizes.length);
+                const pointsWon = prizes[prizes.length - 1 - winningIndex];
+                
+                currentUser.points += pointsWon;
+                currentUser.spinsUsedToday++;
+                
+                // Record spin history
+                const today = new Date().toISOString().split('T')[0];
+                if (!spinHistory[currentUser.username]) {
+                    spinHistory[currentUser.username] = [];
+                }
+                spinHistory[currentUser.username].push({
+                    date: today,
+                    points: pointsWon
+                });
+                
+                localStorage.setItem('spinEarnUsers', JSON.stringify(users));
+                localStorage.setItem('spinHistory', JSON.stringify(spinHistory));
+                
+                updateUserData();
+                spinBtn.disabled = false;
+                spinResult.textContent = `Congratulations! You won ${pointsWon} points!`;
+                showNotification(`You won ${pointsWon} points!`);
+            }, 3000);
+        });
+        
+        // Save UPI ID
+        saveUpiBtn.addEventListener('click', () => {
+            const upiId = upiIdInput.value.trim();
+            
+            if (!upiId) {
+                showNotification('Please enter a valid UPI ID', false);
+                return;
+            }
+            
+            currentUser.upiId = upiId;
+            localStorage.setItem('spinEarnUsers', JSON.stringify(users));
+            showNotification('UPI ID saved successfully!');
+        });
+        
+        // Submit withdrawal request
+        submitWithdrawalBtn.addEventListener('click', () => {
+            const points = parseInt(withdrawalPointsInput.value);
+            const upiId = withdrawalUpiInput.value.trim();
+            
+            if (points % 1000 !== 0) {
+                showNotification('Withdrawal amount must be in multiples of 1000 points', false);
+                return;
+            }
+            
+            if (points < 1000) {
+                showNotification('Minimum withdrawal is 1000 points', false);
+                return;
+            }
+            
+            if (currentUser.points < points) {
+                showNotification('You don\'t have enough points', false);
+                return;
+            }
+            
+            if (!upiId) {
+                showNotification('Please set your UPI ID in Profile first', false);
+                return;
+            }
+            
+            currentUser.points -= points;
+            const amount = points / 10;
+            currentUser.totalWithdrawn += amount;
+            
+            // Record withdrawal
+            const today = new Date().toISOString().split('T')[0];
+            if (!withdrawals[currentUser.username]) {
+                withdrawals[currentUser.username] = [];
+            }
+            withdrawals[currentUser.username].push({
+                date: today,
+                points: points,
+                amount: amount,
+                status: 'Pending'
+            });
+            
+            localStorage.setItem('spinEarnUsers', JSON.stringify(users));
+            localStorage.setItem('withdrawals', JSON.stringify(withdrawals));
+            
+            updateUserData();
+            loadWithdrawalData();
+            showNotification(`Withdrawal request of ₹${amount} submitted!`);
+        });
+        
+        // Update user data in UI
+        function updateUserData() {
+            // Check if it's a new day to reset spins
+            const today = new Date().toISOString().split('T')[0];
+            if (currentUser.lastSpinDate !== today) {
+                currentUser.spinsUsedToday = 0;
+                currentUser.lastSpinDate = today;
+                localStorage.setItem('spinEarnUsers', JSON.stringify(users));
+            }
+            
+            userPointsEl.textContent = currentUser.points;
+            spinsRemainingEl.textContent = 10 - currentUser.spinsUsedToday;
+            
+            // Profile tab data
+            profileUsernameEl.textContent = currentUser.username;
+            profilePointsEl.textContent = currentUser.points;
+            totalWithdrawalsEl.textContent = currentUser.totalWithdrawn;
+            upiIdInput.value = currentUser.upiId || '';
+            
+            // Disable spin button if no spins left
+            spinBtn.disabled = currentUser.spinsUsedToday >= 10;
+        }
+        
+        // Load withdrawal data
+        function loadWithdrawalData() {
+            withdrawalUpiInput.value = currentUser.upiId || '';
+            
+            // Load withdrawal history
+            historyList.innerHTML = '';
+            const userWithdrawals = withdrawals[currentUser.username] || [];
+            
+            if (userWithdrawals.length === 0) {
+                historyList.innerHTML = '<p>No withdrawal history yet</p>';
+                return;
+            }
+            
+            userWithdrawals.forEach(wd => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${wd.date}</strong><br>
+                        ${wd.points} points (₹${wd.amount})
+                    </div>
+                    <div style="color: ${wd.status === 'Completed' ? 'green' : 'orange'}">
+                        ${wd.status}
+                    </div>
+                `;
+                historyList.appendChild(item);
+            });
+        }
+        
+        // Initialize the app
+        function initApp() {
+            initWheel();
+            
+            // Check if user is already logged in (for demo purposes)
+            // In a real app, you would use proper session management
+            authSection.style.display = 'block';
+            appSection.style.display = 'none';
+        }
+        
+        // Start the app
+        initApp();
+    </script>
+</body>
+</html>
